@@ -107,7 +107,28 @@ print(visit())
      输出 ["阿莫西林（处方药）", "布洛芬（处方药）", ...]
   4. 用 max() 配合 lambda 找出总价最高的药品(price * stock)
 """
-# 在这里写代码
+medicines = [
+    {"name": "阿莫西林", "price": 8.5, "stock": 300},
+    {"name": "布洛芬",   "price": 12.0, "stock": 80},
+    {"name": "头孢克肟", "price": 25.0, "stock": 150},
+    {"name": "奥美拉唑", "price": 32.0, "stock": 45},
+]
+
+# 1. 按价格从高到低排序
+sorted_by_price = sorted(medicines, key=lambda m: m["price"], reverse=True)
+print([m["name"] for m in sorted_by_price])
+
+# 2. 筛选库存 < 100 的药品
+low_stock = list(filter(lambda m: m["stock"] < 100, medicines))
+print([m["name"] for m in low_stock])
+
+# 3. 提取药品名加后缀
+names_with_suffix = list(map(lambda m: m["name"] + "（处方药）", medicines))
+print(names_with_suffix)
+
+# 4. 找出总价最高的药品
+max_total = max(medicines, key=lambda m: m["price"] * m["stock"])
+print(max_total["name"])
 
 
 # ========================================================
@@ -124,7 +145,32 @@ print(visit())
     递归和循环都可以解决的问题，什么场景下优先用递归？
     递归有什么风险？
 """
-# 在这里写代码
+def factorial(n):
+    if n < 0:
+        return None
+    if n <= 1:
+        return 1
+    return n * factorial(n - 1)
+
+
+def fibonacci(n):
+    if n <= 0:
+        return 0
+    if n == 1:
+        return 1
+    return fibonacci(n - 1) + fibonacci(n - 2)
+
+
+# 思考题：
+# 递归更适合解决问题的子问题结构与原问题一致的场景，如树形遍历、分治算法。
+# 递归的风险：深度过大会导致栈溢出；函数调用开销大，效率低于循环；对于有重复子问题
+# 的场景（如朴素斐波那契），会有大量重复计算，时间复杂度极高。
+
+
+print(factorial(5))     # 120
+print(factorial(0))     # 1
+print(factorial(-3))    # None
+print(fibonacci(10))    # 55
 
 
 # ========================================================
@@ -160,7 +206,24 @@ def find_medicine(pharmacy: ____, keyword: ____) -> ____:
   print(process_scores([85, 90, 78, 92]))
   print(find_medicine({"内科": ["阿司匹林", "美托洛尔"]}, "阿"))
 """
-# 在这里写代码
+def get_patient(name: str, age: int, diagnosis: str) -> dict:
+    return {"name": name, "age": age, "diagnosis": diagnosis}
+
+def process_scores(scores: list[int]) -> tuple:
+    avg = sum(scores) / len(scores)
+    return (avg, max(scores), min(scores))
+
+def find_medicine(pharmacy: dict[str, list[str]], keyword: str) -> list[str]:
+    result = []
+    for meds in pharmacy.values():
+        for med in meds:
+            if keyword in med:
+                result.append(med)
+    return result
+
+print(get_patient("赵敏", 45, "高血压"))
+print(process_scores([85, 90, 78, 92]))
+print(find_medicine({"内科": ["阿司匹林", "美托洛尔"]}, "阿"))
 
 
 # ========================================================
@@ -197,6 +260,14 @@ models.py 要求：
 # 请先创建 mymedical 目录和文件，然后取消下面的注释运行测试：
 # from mymedical.utils import calculate_bmi, check_blood_pressure
 # from mymedical.models import Patient
+
+from mymedical.utils import calculate_bmi, check_blood_pressure
+from mymedical.models import Patient
+
+print(calculate_bmi(75, 1.78))
+print(check_blood_pressure(145, 95))
+p = Patient("李华", 58, "冠心病")
+print(p.info())
 
 
 # ========================================================
@@ -288,7 +359,42 @@ print(f"所属医院：{Doctor.hospital}")
   print(m1 < m2)                # 应为 True（8.5 < 12.0）
   print(m1.value())             # 2550.0
 """
-# 在这里写代码
+class Medication:
+    def __init__(self, name, price, stock):
+        self.name = name
+        self.price = price
+        self.stock = stock
+
+    def __str__(self):
+        return f"{self.name}(¥{self.price}) 库存:{self.stock}"
+
+    def __repr__(self):
+        return f"Medication(name='{self.name}', price={self.price}, stock={self.stock})"
+
+    def __eq__(self, other):
+        if not isinstance(other, Medication):
+            return NotImplemented
+        return self.name == other.name
+
+    def __lt__(self, other):
+        if not isinstance(other, Medication):
+            return NotImplemented
+        return self.price < other.price
+
+    def value(self):
+        return self.price * self.stock
+
+
+m1 = Medication("阿莫西林", 8.5, 300)
+m2 = Medication("布洛芬", 12.0, 80)
+m3 = Medication("阿莫西林", 8.5, 200)
+
+print(m1)
+print([m1, m2])
+print(m1 == m3)
+print(m1 == m2)
+print(m1 < m2)
+print(m1.value())
 
 
 # ========================================================
@@ -308,16 +414,19 @@ class Employee:
 e1 = Employee("张三")
 e2 = Employee("李四")
 
-print(Employee.hospital)   # 输出？
-print(e1.hospital)         # 输出？
-print(Employee.count)      # 输出？
+print(Employee.hospital)   # 输出：卫宁健康
+print(e1.hospital)         # 输出：卫宁健康
+print(Employee.count)      # 输出：2
 
-# 思考题（写注释回答）：
-# 1. 如果把 Employee.count += 1 改成 self.__class__.count += 1，效果一样吗？
-# 2. e1.hospital = "华山医院" 之后，e1.hospital 和 Employee.hospital 分别是什么？为什么？
-# 3. 类属性和实例属性在内存中存储的位置有什么不同？
+# 思考题：
+# 1. 效果一样。self.__class__ 获取到的是 Employee 类本身，所以
+#    self.__class__.count += 1 等价于 Employee.count += 1。
+# 2. e1.hospital = "华山医院" 之后，e1.hospital 是 "华山医院"，
+#    Employee.hospital 仍是 "卫宁健康"。因为 e1.hospital = "华山医院"
+#    是在实例上创建了新的实例属性，遮蔽（shadow）了类属性，但不影响类属性本身。
+# 3. 类属性存储在类对象的 __dict__ 中，所有实例共享同一份；
+#    实例属性存储在每个实例对象的 __dict__ 中，每个实例独有一份。
 """
-# 在这里写代码
 
 
 # ========================================================
@@ -369,4 +478,93 @@ print(Employee.count)      # 输出？
    - 输出总分前三名
    - 输出系统统计
 """
-# 在这里写代码
+class Student:
+    def __init__(self, stu_id, name):
+        self.stu_id = stu_id
+        self.name = name
+        self.scores = {}
+
+    def total(self):
+        return sum(self.scores.values())
+
+    def avg(self):
+        if not self.scores:
+            return 0.0
+        return round(sum(self.scores.values()) / len(self.scores), 1)
+
+    def __str__(self):
+        courses = ", ".join(f"{course}:{score}" for course, score in self.scores.items())
+        return f"{self.stu_id}-{self.name}({courses})"
+
+
+class StudentSystem:
+    def __init__(self):
+        self.students = {}
+
+    def add_student(self, stu_id, name):
+        self.students[stu_id] = Student(stu_id, name)
+
+    def add_score(self, stu_id, course, score):
+        if stu_id in self.students:
+            self.students[stu_id].scores[course] = score
+
+    def remove_student(self, stu_id):
+        if stu_id in self.students:
+            del self.students[stu_id]
+
+    def search(self, keyword):
+        return [stu for stu in self.students.values()
+                if keyword in stu.stu_id or keyword in stu.name]
+
+    def top(self, n=3):
+        return sorted(self.students.values(), key=lambda s: s.total(), reverse=True)[:n]
+
+    def summary(self):
+        if not self.students:
+            return {"total_students": 0, "avg_score_all": 0.0,
+                    "top_student": None, "course_count": 0}
+        all_scores = []
+        all_courses = set()
+        top_stu = max(self.students.values(), key=lambda s: s.total())
+        for stu in self.students.values():
+            all_scores.extend(stu.scores.values())
+            all_courses.update(stu.scores.keys())
+        return {
+            "total_students": len(self.students),
+            "avg_score_all": round(sum(all_scores) / len(all_scores), 1),
+            "top_student": (top_stu.name, top_stu.total()),
+            "course_count": len(all_courses),
+        }
+
+
+if __name__ == "__main__":
+    sys = StudentSystem()
+
+    sys.add_student("S001", "张三")
+    sys.add_student("S002", "李四")
+    sys.add_student("S003", "王五")
+    sys.add_student("S004", "赵六")
+    sys.add_student("S005", "钱七")
+
+    sys.add_score("S001", "python", 85)
+    sys.add_score("S001", "math", 90)
+    sys.add_score("S001", "english", 88)
+    sys.add_score("S002", "python", 92)
+    sys.add_score("S002", "math", 78)
+    sys.add_score("S003", "python", 76)
+    sys.add_score("S003", "math", 95)
+    sys.add_score("S003", "english", 82)
+    sys.add_score("S004", "python", 88)
+    sys.add_score("S004", "math", 85)
+    sys.add_score("S005", "python", 95)
+    sys.add_score("S005", "math", 92)
+    sys.add_score("S005", "english", 90)
+
+    print("搜索 '张':", [str(s) for s in sys.search("张")])
+    print("搜索 'S003':", [str(s) for s in sys.search("S003")])
+
+    print("总分前三名:")
+    for s in sys.top(3):
+        print(f"  {s.name}: {s.total()}分")
+
+    print("系统统计:", sys.summary())

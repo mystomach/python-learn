@@ -4,7 +4,7 @@
 说明：每道题写完后运行验证，确认无误后喊我检查。
 如果卡住超过 15 分钟，先跳过做后面的，回头再补。
 """
-I GOT IT
+
 # ========================================================
 # 第1题：变量与运算符（难度 ⭐）
 # ========================================================
@@ -24,7 +24,10 @@ price = 28.5
 num = 4
 pay = 200
 print(f'总价:{price*num:.1f}元，找零{pay-price*num:.1f}元')
-
+k = '  aaa '
+print(k)
+k.strip()
+print(k)
 # 输出：总价:37.5元，找零12.5元
 
 # ========================================================
@@ -83,10 +86,10 @@ print(f'原始分数 {score} 分，等级为 {grade}')
   3. f-string
 """
 name = "王建国"
-age = 58
+age = 58.55
 department = "心内科"
 bed_no = "12A"
-
+print("患者 %s，%.1f岁，%s %s 床" % (name, age, department, bed_no))
 # 1. % 格式化
 print("患者 %s，%d岁，%s %s 床" % (name, age, department, bed_no))
 
@@ -115,7 +118,7 @@ BMI 计算公式：体重(kg) / (身高(m))^2
 
 输出格式："您的 BMI 为 23.7，属于 正常"
 """
-weight,height = 75,1.78 
+weight,height = 75,1.78
 BMI = weight/height**2
 match BMI:
     case B if B < 18.5:

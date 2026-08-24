@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>住院手术全流程 · 站台流程图</title>
+  <style>
+    :root {
+      --bg: #111318;
+      --panel: rgba(25, 29, 38, .84);
+      --ink: #f5f7fb;
+      --muted: #aab4c5;
+      --line: rgba(185, 198, 219, .18);
+      --cyan: #22d3ee;
+      --blue: #60a5fa;
+      --green: #34d399;
+      --amber: #f59e0b;
+      --rose: #fb7185;
+      --violet: #a78bfa;
+      --shadow: 0 26px 70px rgba(0, 0, 0, .34);
+      --glow-cyan: 0 0 26px rgba(34, 211, 238, .28);
+      --glow-amber: 0 0 26px rgba(245, 158, 11, .22);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { background: var(--bg); }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+      background:
+        radial-gradient(circle at 9% 12%, rgba(34, 211, 238, .18), transparent 330px),
+        radial-gradient(circle at 88% 7%, rgba(245, 158, 11, .16), transparent 330px),
+        radial-gradient(circle at 75% 78%, rgba(52, 211, 153, .12), transparent 360px),
+        linear-gradient(135deg, #111318 0%, #171923 48%, #101217 100%);
+    }
+
+    .page {
+      position: relative;
+      width: min(1760px, calc(100vw - 56px));
+      margin: 0 auto;
+      padding: 34px 0 44px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 24px;
+      align-items: end;
+      margin-bottom: 22px;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 34px;
+      padding: 0 13px;
+      border: 1px solid rgba(34, 211, 238, .30);
+      border-radius: 7px;
+      color: #cffafe;
+      background: rgba(34, 211, 238, .10);
+      box-shadow: var(--glow-cyan);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 6px rgba(52, 211, 153, .12), 0 0 22px rgba(52, 211, 153, .65);
+    }
+
+    h1 {
+      margin: 14px 0 0;
+      font-size: 42px;
+      line-height: 1.13;
+    }
+
+    .lead {
+      max-width: 1080px;
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.78;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(25, 29, 38, .72);
+      box-shadow: var(--shadow);
+    }
+
+    .metric {
+      min-height: 76px;
+      padding: 12px;
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: 9px;
+      background: rgba(255, 255, 255, .045);
+    }
+
+    .metric b { display: block; color: var(--ink); font-size: 26px; line-height: 1; }
+    .metric span { display: block; margin-top: 8px; color: var(--muted); font-size: 12px; line-height: 1.35; }
+
+    .board {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(17, 19, 24, .64);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .board-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: center;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(34, 211, 238, .08), rgba(245, 158, 11, .06), rgba(52, 211, 153, .06)),
+        rgba(25, 29, 38, .86);
+    }
+
+    .board-title { margin: 0; font-size: 19px; line-height: 1.4; }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .legend span { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+
+    .chip-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 18px rgba(34, 211, 238, .55); }
+    .chip-dot.blue { background: var(--blue); box-shadow: 0 0 18px rgba(96, 165, 250, .55); }
+    .chip-dot.green { background: var(--green); box-shadow: 0 0 18px rgba(52, 211, 153, .50); }
+    .chip-dot.amber { background: var(--amber); box-shadow: 0 0 18px rgba(245, 158, 11, .48); }
+    .chip-dot.violet { background: var(--violet); box-shadow: 0 0 18px rgba(167, 139, 250, .50); }
+    .chip-dot.rose { background: var(--rose); box-shadow: 0 0 18px rgba(251, 113, 133, .50); }
+
+    .flow-wrap { padding: 22px; overflow-x: auto; }
+
+    .flow {
+      min-width: 1520px;
+      display: grid;
+      grid-template-columns: repeat(7, minmax(250px, 1fr));
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .terminal {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      gap: 10px;
+      min-height: 252px;
+      border-radius: 14px;
+      border: 1px solid rgba(52, 211, 153, .34);
+      background:
+        linear-gradient(180deg, rgba(52, 211, 153, .14), rgba(34, 211, 238, .06)),
+        rgba(25, 29, 38, .8);
+      box-shadow: 0 0 26px rgba(52, 211, 153, .20);
+    }
+
+    .terminal .big { font-size: 24px; font-weight: 900; color: #cffafe; }
+    .terminal .small { color: var(--muted); font-size: 13px; line-height: 1.7; padding: 0 12px; }
+
+    .stage {
+      position: relative;
+      min-height: 252px;
+      border: 1px solid rgba(255, 255, 255, .10);
+      border-radius: 14px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .025)),
+        var(--panel);
+      box-shadow: 0 18px 36px rgba(0, 0, 0, .22);
+      overflow: visible;
+    }
+
+    .stage:not(.last)::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -19px;
+      width: 18px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--cyan), var(--green));
+      transform: translateY(-50%);
+      box-shadow: var(--glow-cyan);
+      z-index: 4;
+    }
+
+    .arrow {
+      position: absolute;
+      top: 50%;
+      right: -22px;
+      width: 10px;
+      height: 10px;
+      border-top: 2px solid var(--green);
+      border-right: 2px solid var(--green);
+      transform: translateY(-50%) rotate(45deg);
+      z-index: 5;
+    }
+
+    .stage-head,
+    .stage-body { position: relative; z-index: 2; }
+
+    .stage-head {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      min-height: 64px;
+      padding: 14px 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, .09);
+      background: rgba(255, 255, 255, .035);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      flex: 0 0 34px;
+      border: 1px solid rgba(34, 211, 238, .46);
+      border-radius: 9px;
+      color: #ecfeff;
+      background: rgba(34, 211, 238, .14);
+      box-shadow: var(--glow-cyan);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .stage h2 { margin: 0; font-size: 17px; line-height: 1.35; }
+    .stage-head small { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
+
+    .stage-body { padding: 14px 15px 16px; }
+
+    .steps {
+      display: grid;
+      gap: 9px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .steps li {
+      position: relative;
+      min-height: 24px;
+      padding-left: 18px;
+      color: #e6ebf4;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .steps li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: .68em;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 14px rgba(34, 211, 238, .56);
+    }
+
+    .status,
+    .boundary {
+      margin-top: 13px;
+      padding: 11px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      line-height: 1.62;
+    }
+
+    .status {
+      border: 1px solid rgba(96, 165, 250, .30);
+      color: #c9d7ee;
+      background:
+        linear-gradient(135deg, rgba(96, 165, 250, .16), rgba(34, 211, 238, .08)),
+        rgba(96, 165, 250, .06);
+    }
+
+    .boundary {
+      border: 1px solid rgba(245, 158, 11, .36);
+      color: #ffe2b6;
+      background:
+        linear-gradient(135deg, rgba(245, 158, 11, .18), rgba(251, 113, 133, .10)),
+        rgba(245, 158, 11, .06);
+      box-shadow: var(--glow-amber);
+    }
+
+    .status strong,
+    .boundary strong { display: block; margin-bottom: 4px; color: #ffffff; font-size: 12px; }
+
+    .stage.accent-blue .badge { border-color: rgba(96, 165, 250, .55); background: rgba(96, 165, 250, .16); box-shadow: 0 0 24px rgba(96, 165, 250, .24); }
+    .stage.accent-blue .steps li::before { background: var(--blue); box-shadow: 0 0 14px rgba(96, 165, 250, .56); }
+    .stage.accent-green .badge { border-color: rgba(52, 211, 153, .55); background: rgba(52, 211, 153, .14); box-shadow: 0 0 24px rgba(52, 211, 153, .22); }
+    .stage.accent-green .steps li::before { background: var(--green); box-shadow: 0 0 14px rgba(52, 211, 153, .56); }
+    .stage.accent-violet .badge { border-color: rgba(167, 139, 250, .55); background: rgba(167, 139, 250, .14); box-shadow: 0 0 24px rgba(167, 139, 250, .22); }
+    .stage.accent-violet .steps li::before { background: var(--violet); box-shadow: 0 0 14px rgba(167, 139, 250, .56); }
+    .stage.accent-amber .badge { border-color: rgba(245, 158, 11, .55); background: rgba(245, 158, 11, .13); box-shadow: 0 0 24px rgba(245, 158, 11, .20); }
+    .stage.accent-amber .steps li::before { background: var(--amber); box-shadow: 0 0 14px rgba(245, 158, 11, .56); }
+    .stage.accent-rose .badge { border-color: rgba(251, 113, 133, .55); background: rgba(251, 113, 133, .14); box-shadow: 0 0 24px rgba(251, 113, 133, .22); }
+    .stage.accent-rose .steps li::before { background: var(--rose); box-shadow: 0 0 14px rgba(251, 113, 133, .56); }
+
+    .briefing {
+      display: grid;
+      grid-template-columns: 1.12fr .88fr;
+      gap: 18px;
+      margin-top: 20px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.025)),
+        rgba(25, 29, 38, .78);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel h2 {
+      margin: 0;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      font-size: 18px;
+      line-height: 1.4;
+      background: rgba(255, 255, 255, .035);
+    }
+
+    .reverse-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      padding: 16px;
+    }
+
+    .reverse-card {
+      min-height: 120px;
+      padding: 14px;
+      border: 1px solid rgba(245, 158, 11, .28);
+      border-radius: 13px;
+      background: rgba(245, 158, 11, .07);
+    }
+
+    .reverse-card b {
+      display: inline-flex;
+      align-items: center;
+      height: 25px;
+      margin-bottom: 10px;
+      padding: 0 9px;
+      border-radius: 7px;
+      color: #fff7ed;
+      background: rgba(245, 158, 11, .22);
+      border: 1px solid rgba(245, 158, 11, .32);
+      font-size: 12px;
+    }
+
+    .reverse-card h3 { margin: 0 0 8px; font-size: 16px; line-height: 1.35; }
+    .reverse-card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.68; }
+
+    .talk { margin: 0; padding: 16px 20px 18px 40px; color: var(--muted); font-size: 14px; line-height: 1.88; }
+    .talk li { margin-bottom: 8px; }
+
+    .note {
+      margin: 0 18px 18px;
+      padding: 12px 13px;
+      border: 1px solid rgba(96, 165, 250, .24);
+      border-radius: 10px;
+      color: #c9d7ee;
+      background: rgba(96, 165, 250, .08);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .footer { text-align: center; color: var(--muted); font-size: 12px; padding: 22px 5vw 10px; }
+
+    @media (max-width: 1240px) {
+      .hero, .board-head, .briefing { grid-template-columns: 1fr; }
+      .metrics { max-width: 520px; }
+      .reverse-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 760px) {
+      .page { width: min(100vw - 24px, 640px); padding-top: 22px; }
+      h1 { font-size: 30px; }
+      .metrics { grid-template-columns: 1fr; }
+      .flow { min-width: 0; grid-template-columns: 1fr; }
+      .stage:not(.last)::before, .arrow { display: none; }
+      .reverse-grid { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      body { background: #111318; }
+      .page { width: auto; padding: 0; }
+      .flow-wrap { overflow: visible; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <section>
+        <span class="kicker"><i class="pulse"></i>住院手术流程 · 站台流程图 20260813</span>
+        <h1>住院手术全流程站台图</h1>
+        <p class="lead">从住院医生站发起手术申请开始，按责任流转顺序经过 7 个站台，每站明确「谁接手、做什么、系统状态变成什么、下一环节靠什么触发」，直至术后复苏、费用确认与文书归档收口结束。</p>
+      </section>
+      <aside class="metrics">
+        <div class="metric"><b>7</b><span>责任站台</span></div>
+        <div class="metric"><b>3+</b><span>角色接力</span></div>
+        <div class="metric"><b>2</b><span>术后闭环收口</span></div>
+      </aside>
+    </header>
+
+    <section class="board">
+      <div class="board-head">
+        <h2 class="board-title">从头到尾：7 个站台的责任流转</h2>
+        <div class="legend">
+          <span><i class="chip-dot blue"></i>医生发起</span>
+          <span><i class="chip-dot green"></i>护士承接</span>
+          <span><i class="chip-dot cyan"></i>手术室资源</span>
+          <span><i class="chip-dot violet"></i>麻醉专业线</span>
+          <span><i class="chip-dot amber"></i>患者流转</span>
+          <span><i class="chip-dot rose"></i>术中证据</span>
+        </div>
+      </div>
+
+      <div class="flow-wrap">
+        <div class="flow">
+          <section class="terminal">
+            <div class="big">开始</div>
+            <div class="small">住院患者已入院，有诊断与主管医生信息，具备住院手术上下文</div>
+          </section>
+
+          <section class="stage accent-blue">
+            <i class="arrow"></i>
+            <div class="stage-head">
+              <span class="badge">01</span>
+              <h2>手术申请<small>住院医生站 · 医生发起</small></h2>
+            </div>
+            <div class="stage-body">
+              <ul class="steps">
+                <li>选择已入院患者，确认姓名、住院号、科室、诊断、主管医生</li>
+                <li>录入拟手术名称、诊断、主刀、拟手术时间、手术等级、切口等级</li>
+                <li>系统校验主刀权限、手术等级及术前文书（术前讨论/知情同意）</li>
+                <li>申请单保存成功，生成「待签收」状态</li>
+              </ul>
+              <div class="boundary"><strong>边界：申请≠执行</strong>发起只是医疗意图，须经签收、同步、排台、访视、交接后才进入执行链路。</div>
+            </div>
+          </section>
+
+          <section class="stage accent-green">
+            <i class="arrow"></i>
+            <div class="stage-head">
+              <span class="badge">02</span>
+              <h2>病区签收<small>病区护士站 · 病区承接</small></h2>
+            </div>
+            <div class="stage-body">
+              <ul class="steps">
+                <li>病区护士签收手术相关医嘱 / 申请</li>
+                <li>申请同步到手术管理系统（跨系统同步验证）</li>
+                <li>状态流转：医生端 → 手术管理系统「待排台」</li>
+              </ul>
+              <div class="status"><strong>验证：</strong>手术管理系统能按患者/住院号/申请时间查到本次申请。</div>
+              <div class="boundary"><strong>边界：签收≠入室</strong>签收是从医生诊疗动作转向病区执行管理的关键节点。</div>
+            </div>
+          </section>
+
+          <section class="stage">
+            <i class="arrow"></i>
+            <div class="stage-head">
+              <span class="badge">03</span>
+              <h2>手术排台<small>手术管理系统 · 手术室接手</small></h2>
+            </div>
+            <div class="stage-body">
+              <ul class="steps">
+                <li>查询待安排手术，定位本次手术申请</li>
+                <li>手术室护士长安排手术日期、手术间、台次</li>
+                <li>指派巡回护士、器械护士</li>
+                <li>手术从「申请」进入「计划执行」，排班表/通知单可见</li>
+              </ul>
+              <div class="status"><strong>本质：</strong>资源调度——把患者、手术间、台次、护士、麻醉人员、时间绑定。</div>
+            </div>
+          </section>
+
+          <section class="stage accent-violet">
+            <i class="arrow"></i>
+            <div class="stage-head">
+              <span class="badge">04</span>
+              <h2>麻醉安排<small>麻醉科 · 专业线</small></h2>
+            </div>
+            <div class="stage-body">
+              <ul class="steps">
+                <li>安排主麻、副麻或麻醉护士</li>
+                <li>完成术前访视记录与麻醉评估</li>
+                <li>完成麻醉知情同意</li>
+                <li>确定麻醉风险、麻醉方式与术中监测重点</li>
+              </ul>
+              <div class="status"><strong>验证：</strong>可查看麻醉人员、访视记录或麻醉知情状态。</div>
+              <div class="boundary"><strong>边界：</strong>麻醉是围手术期独立流程，不是附属字段。</div>
+            </div>
+          </section>
+
+          <section class="stage accent-amber">
+            <i class="arrow"></i>
+            <div class="stage-head">
+              <span class="badge">05</span>
+              <h2>转运入室<small>病区 → 手术室 · 患者流转</small></h2>
+            </div>
+            <div class="stage-body">
+              <ul class="steps">
+                <li>病区护士与手术室护士转运交接</li>
+                <li>腕带 / 转运码 / 纸质交接单核对患者</li>
+                <li>核对身份、手术名称、部位、禁食禁水、术前准备</li>
+                <li>患者状态更新为「待入室 / 已入室」</li>
+              </ul>
+              <div class="status"><strong>兜底：</strong>PDA 是电子化交接方式，无设备时纸质/手工确认，业务重点仍是身份+术式+部位+双方确认。</div>
+            </div>
+          </section>
+
+          <section class="stage accent-rose">
+            <i class="arrow"></i>
+            <div class="stage-head">
+              <span class="badge">06</span>
+              <h2>术中记录<small>手术室 · 证据留痕</small></h2>
+            </div>
+            <div class="stage-body">
+              <ul class="steps">
+                <li>三方核查：麻醉前、手术前、离室前（医生+麻醉+手术室护士）</li>
+                <li>术中护理记录（巡回、器械护士）与器械/敷料/针线清点</li>
+                <li>麻醉记录单：时间轴、用药、输液输血、体征、事件、监护</li>
+                <li>药品、耗材使用留痕，构成术中证据链</li>
+              </ul>
+              <div class="boundary"><strong>边界：医嘱来源</strong>术中检查/检验/病理/输血医嘱由同科室医生回住院医生站开立，医技系统执行，手麻系统只记录场景与证据。</div>
+            </div>
+          </section>
+
+          <section class="stage accent-green last">
+            <div class="stage-head">
+              <span class="badge">07</span>
+              <h2>术后闭环<small>复苏/病区/收费/归档 · 结果回收</small></h2>
+            </div>
+            <div class="stage-body">
+              <ul class="steps">
+                <li>记录手术结束、麻醉结束、出室时间，确认流向（复苏室/ICU/回病区）</li>
+                <li>PACU 复苏监测体征、苏醒、用药，达标后出复苏室回病区或转 ICU</li>
+                <li>费用确认：手术费、麻醉费、耗材费、药品费进入患者账</li>
+                <li>文书签名归档：麻醉、护理、手术文书 → 已完成 / 已归档</li>
+              </ul>
+              <div class="boundary"><strong>双闭环：</strong>①患者去向与复苏闭环；②费用确认与文书归档闭环。只完成手术动作 ≠ 流程完成。</div>
+            </div>
+          </section>
+
+          <section class="terminal">
+            <div class="big">结束</div>
+            <div class="small">患者已安全出室并完成复苏，费用可追溯、文书已归档，住院手术闭环收口</div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="briefing">
+      <article class="panel">
+        <h2>四条必须讲清的系统边界</h2>
+        <div class="reverse-grid">
+          <section class="reverse-card">
+            <b>边界 1</b>
+            <h3>申请 ≠ 执行</h3>
+            <p>医生开申请只是发起医疗意图，只有经过签收、同步、排台、麻醉访视和转运交接，手术才真正进入执行链路。</p>
+          </section>
+          <section class="reverse-card">
+            <b>边界 2</b>
+            <h3>签收 ≠ 入室</h3>
+            <p>病区护士签收是把医生诊疗动作转为病区执行管理，后续还要排台、访视、转运入室后才算真正开始执行。</p>
+          </section>
+          <section class="reverse-card">
+            <b>边界 3</b>
+            <h3>术中医嘱仍在住院医生站</h3>
+            <p>术中检查、检验、病理、输血医嘱回住院医生站开立，LIS/PACS/病理/输血系统承接执行，手麻系统只记录场景与证据。</p>
+          </section>
+          <section class="reverse-card">
+            <b>边界 4</b>
+            <h3>入室后不随意作废</h3>
+            <p>一旦进入入室/术中，涉及三方核查、清点与计费证据，不允许随意作废，异常按既有流程处理。</p>
+          </section>
+        </div>
+      </article>
+
+      <article class="panel">
+        <h2>流程汇总</h2>
+        <ol class="talk">
+          <li>起点：住院医生站选择已入院患者，开立手术申请（术式、主刀、等级、时间）。</li>
+          <li>承接：病区护士签收，申请同步到手术管理系统；手术室护士长排台安排手术间、台次、护士。</li>
+          <li>专业线：麻醉科排班并完成术前访视、麻醉评估与知情同意。</li>
+          <li>流转：病区与手术室转运交接，入室后三方核查，术中完成护理记录、器械清点、麻醉记录。</li>
+          <li>收口：术后出室、复苏或转 ICU，费用确认进入患者账，麻醉/护理/手术文书签名归档，闭环结束。</li>
+        </ol>
+        <p class="note">说明：本文档依据《住院手术流程演示脚本_20260813》整理，用于演示汇报。演示讲的是「患者在哪里、谁接手、系统状态变成什么、下一环节靠什么触发」，而不是逐一点菜单。</p>
+      </article>
+    </section>
+  </main>
+
+  <div class="footer">住院手术全流程站台图 · 2026-08-13 · 依据《住院手术流程演示脚本》整理</div>
+</body>
+</html>
